@@ -19,12 +19,22 @@ public class TrafficLightCtrl {
 
     private boolean doRun = true;
 
-    public TrafficLightCtrl() {
+    private static TrafficLightCtrl instance = null;
+
+    private TrafficLightCtrl() {
         super();
         initStates();
         gui = new TrafficLightGui(this);
         gui.setVisible(true);
         //TODO useful to update the current state
+        currentState.notifyObservers();
+    }
+
+    public static TrafficLightCtrl getInstance() {
+        if (instance == null) {
+            instance = new TrafficLightCtrl();
+        }
+        return instance;
     }
 
     private void initStates() {
@@ -33,6 +43,8 @@ public class TrafficLightCtrl {
             public State getNextState() {
                 previousState = currentState;
                 //TODO useful to update the current state and the old one
+                yellowState.notifyObservers();
+                notifyObservers();
                 return yellowState;
             }
             @Override
@@ -46,6 +58,8 @@ public class TrafficLightCtrl {
             public State getNextState() {
                 previousState = currentState;
                 //TODO useful to update the current state and the old one
+                yellowState.notifyObservers();
+                notifyObservers();
                 return yellowState;
             }
             @Override
@@ -60,10 +74,14 @@ public class TrafficLightCtrl {
                 if (previousState.equals(greenState)) {
                     previousState = currentState;
                     //TODO useful to update the current state and the old one
+                    redState.notifyObservers();
+                    notifyObservers();
                     return redState;
                 }else {
                     previousState = currentState;
                     //TODO useful to update the current state and the old one
+                    greenState.notifyObservers();
+                    notifyObservers();
                     return greenState;
                 }
             }
@@ -88,6 +106,10 @@ public class TrafficLightCtrl {
         return yellowState;
     }
 
+    public State getCurrentState() {
+        return currentState;
+    }
+
     public void run()  {
         int intervall = 1500;
         while (doRun) {
@@ -108,5 +130,10 @@ public class TrafficLightCtrl {
 
     public void stop() {
         doRun = false;
+    }
+
+    public void resetState() {
+        currentState = greenState;
+        previousState = yellowState;
     }
 }
